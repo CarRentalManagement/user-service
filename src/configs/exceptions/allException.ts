@@ -7,16 +7,28 @@ import {
 } from '@nestjs/common';
 import { HttpAdapterHost } from '@nestjs/core';
 import { RpcException } from '@nestjs/microservices';
-import { Observable } from 'rxjs';
+
+import CustomLogger from '@microservice-user/module-log/customLogger';
 
 @Catch()
-export class HttpExceptionsFilter implements ExceptionFilter {
-  constructor(private readonly httpAdapterHost: HttpAdapterHost) {}
+export class AllExceptionsFilter implements ExceptionFilter {
+  constructor(
+    private logger: CustomLogger,
+    private readonly httpAdapterHost: HttpAdapterHost,
+  ) {}
 
   catch(exception: unknown, host: ArgumentsHost) {
     // In certain situations `httpAdapter` might not be available in the
     // constructor method, thus we should resolve it here.
-    console.log(exception);
+    const message =
+      exception instanceof HttpException
+        ? exception.getResponse()
+        : (exception as any)?.message;
+    const stack = (exception as any)?.stack;
+    const errorName = (exception as any)?.name;
+
+    this.logger.error(message, stack, errorName);
+
     if (exception instanceof RpcException) {
       return Promise.reject(exception);
     }
@@ -29,8 +41,6 @@ export class HttpExceptionsFilter implements ExceptionFilter {
       exception instanceof HttpException
         ? exception.getStatus()
         : HttpStatus.INTERNAL_SERVER_ERROR;
-    const message =
-      exception instanceof HttpException ? exception.getResponse() : 'Error';
 
     const responseBody = {
       statusCode: httpStatus,
@@ -38,7 +48,7 @@ export class HttpExceptionsFilter implements ExceptionFilter {
       path: httpAdapter.getRequestUrl(ctx.getRequest()),
       message: {
         error: message,
-        errorName: (exception as any)?.name,
+        errorName,
       },
     };
 

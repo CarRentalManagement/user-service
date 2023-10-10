@@ -9,7 +9,7 @@ import { UserModule } from '@microservice-user/module-user/user.module';
 
 import { LoggerMiddleware } from '@microservice-user/config-middlewares';
 import { TransformInterceptor } from '@microservice-user/config-interceptors';
-import { HttpExceptionsFilter } from '@microservice-user/config-exceptions';
+import { AllExceptionsFilter } from '@microservice-user/config-exceptions';
 
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -19,7 +19,7 @@ import { AppService } from './app.service';
     AppService,
     {
       provide: APP_FILTER,
-      useClass: HttpExceptionsFilter,
+      useClass: AllExceptionsFilter,
     },
     {
       provide: APP_INTERCEPTOR,

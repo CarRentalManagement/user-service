@@ -21,7 +21,9 @@ message GetUserByEmailResponse {
     GetUserByEmailPayloadResponse message = 4;
 }
 message GetUserByEmailPayloadResponse {
-    string message = 1;
+    int32 id = 1;
+    string email = 2;
+    string name = 3;
 }
 
 // CreateUser

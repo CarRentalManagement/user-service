@@ -9,13 +9,13 @@ import { IConfig } from 'config';
 import { ClientKafka } from '@nestjs/microservices';
 import { Observable, lastValueFrom } from 'rxjs';
 
-import { HttpExceptionsFilter } from '@microservice-user/config-exceptions';
+import { AllExceptionsFilter } from '@microservice-user/config-exceptions';
 import { CONFIG } from '@microservice-user/module-config/config.provider';
 
 import { KAFKA_TOPIC_PRODUCER } from './dto/types';
 
 @Injectable()
-@UseFilters(HttpExceptionsFilter)
+@UseFilters(AllExceptionsFilter)
 export class KafkaService implements OnModuleInit, OnModuleDestroy {
   private client: ClientKafka;
 

@@ -1,8 +1,8 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { In, Repository } from 'typeorm';
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const bcrypt = require('bcryptjs');
+import { Repository } from 'typeorm';
+
+import CustomLogger from '@microservice-user/module-log/customLogger';
 
 import { User } from '@microservice-user/entities';
 
@@ -14,19 +14,24 @@ export class UserService {
   constructor(
     @InjectRepository(User)
     private usersRepository: Repository<User>,
-  ) {}
+
+    private readonly logger: CustomLogger,
+  ) {
+    logger.setContext(UserService.name);
+  }
 
   async getByEmail(email: string) {
     const user = await this.usersRepository.findOne({
       where: { email },
-      relations: ['roles'],
     });
-    if (user) {
-      return user;
+
+    if (!user) {
+      throw {
+        message: 'User with this email does not exist',
+      };
     }
-    throw {
-      message: 'User with this email does not exist',
-    };
+
+    return user;
   }
 
   async getById(id: number) {
